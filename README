@@ -1,0 +1,14 @@
+Pre-requisites:
+
+To compile, you'll need thw following libraries installed:
+
+    - cgic: http://www.boutell.com/cgic/#obtain
+    - libgd: http://www.libgd.org/releases/
+
+To install cgic, download the zip, unzip it and run "sudo make install".
+
+To install libgd, download the latest stable zip and run "./configure && sudo make install".
+
+Building:
+
+Just type "make". There's no "make install", install it where you please.
