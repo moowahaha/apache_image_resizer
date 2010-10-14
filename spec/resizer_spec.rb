@@ -31,13 +31,13 @@ def resize params
           ['IMAGE_ROOT', image_root],
           ['PATH_INFO', file],
           ['PADDING_COLOR', padding_color]
-  ].each do |script_param|
-    script_params += script_param.join('=')
+  ].each do |key, val|
+    script_params += "#{key}='#{val}' "
   end
 
   had_error = false
   output = ''
-
+puts "#{script_params} #{script_path}"
   Open3.popen3("#{script_params} #{script_path}") do |stdin, stdout, stderr|
     stdout_output, stderr_output = stdout.read, stderr.read
 

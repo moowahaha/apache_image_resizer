@@ -3,3 +3,6 @@ all:
 
 clean:
 	rm -f image_resizer.cgi
+
+test:
+	spec spec
