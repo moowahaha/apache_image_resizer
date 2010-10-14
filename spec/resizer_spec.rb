@@ -10,6 +10,7 @@ describe 'image resizer' do
 
   it "should resize my an image" do
     image_data = resize(:file => 'cat-in-hat.jpg', :width => 30, :height => 60)
+
     dimensions = ImageSize.new(image_data)
 
     dimensions.width.should == 30
@@ -51,9 +52,9 @@ def resize params
     end
   end
 
-#  puts output
-
   raise output if had_error
 
-  output.gsub(/.*Content-type.+\s+/, '')
+  output.gsub!(/.*Content-type.+\s+/, '')
+  File.open("test_image.#{file.split('.').pop}", 'wb').write(output)  
+  output
 end

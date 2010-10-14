@@ -34,7 +34,7 @@ FILE *openImage(char *imageRoot, char *requestedFile) {
     return fh;
 }
 
-imageType determineImage(char *requestedFile) {
+imageType determineImageType(char *requestedFile) {
     int availableImageTypes = sizeof(Images) / sizeof(imageType);
     int i = 0;
 
@@ -62,30 +62,90 @@ imageType determineImage(char *requestedFile) {
     return (selectedImageType);
 }
 
+int hexify(char *hexString, int offset) {
+    char colorString[2];
+    strncpy(&colorString, hexString + offset, 2);
+    return strtoul(colorString, 0, 16);
+}
+
+int offset(int calculatedLength, int requestedLength) {
+    int offset = 0;
+
+    if (calculatedLength > requestedLength) {
+        offset = (int)((calculatedLength - requestedLength) / 2);
+    }
+    else {
+        offset = (int)((requestedLength - calculatedLength) / 2);
+    }
+
+    return (offset);
+}
+
+int integerFromQuery(char *param) {
+    char queryValue[10];
+    cgiFormStringNoNewlines(param, queryValue, sizeof(queryValue));
+    return (atoi(queryValue));
+}
+
+void resize (gdImagePtr original, gdImagePtr destination) {
+    float originalRatio = (float)original->sx / original->sy;
+    float destinationRatio = (float)destination->sx / destination->sy;
+
+    int destinationX = destination->sx;
+    int destinationY = destination->sy;
+
+    if (destinationRatio > originalRatio) {
+        destinationX = floor(destination->sy * originalRatio);
+    }
+    else {
+        destinationY = floor(destination->sx / originalRatio);
+
+    }
+
+    gdImageCopyResampled(
+        destination,
+        original,
+        offset(destinationX, destination->sx),
+        offset(destinationY, destination->sy),
+        0,
+        0,
+        destinationX,
+        destinationY,
+        original->sx,
+        original->sy
+    );
+}
+
+void setBackgroundColor(gdImagePtr destination, char *paddingColor) {
+    gdImageFill(
+        destination,
+        0,
+        0,
+        gdImageColorAllocate(
+            destination,
+            hexify(paddingColor, 0),
+            hexify(paddingColor, 2),
+            hexify(paddingColor, 4)
+        )
+    );
+}
+
 int cgiMain() {
     FILE *imageFh = openImage(getenv("IMAGE_ROOT"), cgiPathInfo);
-    imageType image = determineImage(cgiPathInfo);
+    imageType image = determineImageType(cgiPathInfo);
+
     cgiHeaderContentType(image.mimeType);
 
     gdImagePtr original = (*image.instantiateImage)(imageFh);
-    (*image.output)(original, cgiOut);
+    gdImagePtr destination = gdImageCreateTrueColor(integerFromQuery("width"), integerFromQuery("height"));
+
+    setBackgroundColor(destination, getenv("PADDING_COLOR"));
+    resize(original, destination);
+
+    (*image.output)(destination, cgiOut);
 
     gdImageDestroy(original);
+    gdImageDestroy(destination);
 
-
-//    in = fopen(, "rb");
-//  fprintf(cgiOut, "<HTML><HEAD>\n");
-//  fprintf(cgiOut, "<TITLE>cgic test</TITLE></HEAD>\n");
-//  fprintf(cgiOut, "<BODY><H1>cgic test</H1>\n");
-//  fprintf(cgiOut, "path: %s<br/>", cgiPathInfo);
-
-//  char *blah;
-//  blah = getenv("TERRY");
-//  fprintf(cgiOut, "env: %s<br/>", blah);
-
-//  char queryParam[1024];
-//  cgiFormStringNoNewlines("a", queryParam, sizeof(queryParam));
-//  fprintf(cgiOut, "param: %s<br/>", queryParam);
-//  fprintf(cgiOut, "</BODY></HTML>\n");
-  return 0;
+    return 0;
 }
