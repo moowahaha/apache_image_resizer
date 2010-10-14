@@ -8,13 +8,22 @@ describe 'image resizer' do
     end
   end
 
-  it "should resize my an image" do
+  it "should resize my an image to a portrait" do
     image_data = resize(:file => 'cat-in-hat.jpg', :width => 30, :height => 60)
 
     dimensions = ImageSize.new(image_data)
 
     dimensions.width.should == 30
     dimensions.height.should == 60
+  end
+
+  it "should resize my an image to a landscape" do
+    image_data = resize(:file => 'cat-in-hat.jpg', :width => 600, :height => 200)
+
+    dimensions = ImageSize.new(image_data)
+
+    dimensions.width.should == 600
+    dimensions.height.should == 200
   end
 end
 
@@ -55,6 +64,8 @@ def resize params
   raise output if had_error
 
   output.gsub!(/.*Content-type.+\s+/, '')
-  File.open("test_image.#{file.split('.').pop}", 'wb').write(output)  
+  test_image_file = "test_image.#{file.split('.').pop}"
+  File.unlink(test_image_file) if File.exists?(test_image_file)
+  File.open(test_image_file, 'wb').write(output)
   output
 end
