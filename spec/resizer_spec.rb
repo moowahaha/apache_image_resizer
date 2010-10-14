@@ -38,6 +38,8 @@ def resize params
   had_error = false
   output = ''
 
+  puts "#{script_params} #{script_path}"
+  
   Open3.popen3("#{script_params} #{script_path}") do |stdin, stdout, stderr|
     stdout_output, stderr_output = stdout.read, stderr.read
 
@@ -49,7 +51,9 @@ def resize params
     end
   end
 
+#  puts output
+
   raise output if had_error
 
-  output.gsub(/.+Content-type.+\n\n/, '')
+  output.gsub(/.*Content-type.+\s+/, '')
 end
