@@ -1,6 +1,7 @@
 #include "cgic.h"
 #include "gd.h"
-#include "stdio.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 int cgiMain() {
   // cgiGetenv(&blah, "terry");
@@ -18,7 +19,7 @@ int cgiMain() {
 
   char queryParam[1024];
   cgiFormStringNoNewlines("a", queryParam, sizeof(queryParam));
-  fprintf(cgiOut, "env: %s<br/>", queryParam);
+  fprintf(cgiOut, "param: %s<br/>", queryParam);
   fprintf(cgiOut, "</BODY></HTML>\n");
   return 0;
 }
