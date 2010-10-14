@@ -5,4 +5,4 @@ clean:
 	rm -f image_resizer.cgi
 
 test:
-	spec spec
+	rspec spec
