@@ -37,7 +37,7 @@ def resize params
 
   had_error = false
   output = ''
-puts "#{script_params} #{script_path}"
+
   Open3.popen3("#{script_params} #{script_path}") do |stdin, stdout, stderr|
     stdout_output, stderr_output = stdout.read, stderr.read
 
