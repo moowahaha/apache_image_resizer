@@ -1,10 +1,6 @@
-require 'lib/resize_wrapper'
+require File.join(File.dirname(__FILE__), 'spec_helper')
 
-describe 'image resizer' do
-  before(:all) do
-    @resizer = ResizeWrapper.new
-  end
-
+describe 'resizing' do
   it "should resize my an image to a portrait" do
     image = @resizer.resize(
             :padding_color => 'ffffff',
