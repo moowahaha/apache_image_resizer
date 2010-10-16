@@ -35,6 +35,6 @@ describe "file access" do
               :width => 20,
               :height => 20
       )
-    }.should raise_error(/Status: 403 Not allowed/)
+    }.should raise_error(/Status: 403 Not allowed: \/..\/blah.jpg/)
   end
 end

@@ -52,7 +52,9 @@ FILE *openImage(char *imageRoot, char *requestedFile) {
     char *fullImagePath = malloc(strlen(imageRoot) + strlen(requestedFile) + 1);
 
     if (strstr(requestedFile, "..")) {
-        recordError(403, "Not allowed");
+        char *message = malloc(24 + strlen(requestedFile));
+        sprintf(message, "Not allowed: %s", requestedFile);
+        recordError(403, message);
     }
 
     strncpy(fullImagePath, imageRoot, strlen(imageRoot));
