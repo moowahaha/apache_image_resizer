@@ -38,17 +38,13 @@ imageType determineImageType(char *requestedFile) {
     int availableImageTypes = sizeof(Images) / sizeof(imageType);
     int i = 0;
 
-    char imageExtension[4];
+    char imageExtension[5];
     bzero(&imageExtension, 5);
 
     char *fileChar = strrchr(requestedFile, '.');
     fileChar++;
 
-    while(*fileChar != '\0') {
-        imageExtension[i] = *fileChar;
-        i++;
-        fileChar++;
-    }
+    strcpy(&imageExtension, fileChar);
 
     imageType selectedImageType;
 
