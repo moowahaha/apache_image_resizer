@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <errno.h>
 
 typedef struct {
     char mimeType[11];
@@ -19,9 +20,40 @@ imageType Images[] = {
     {"image/png", "png", gdImageCreateFromPng, gdImagePng}
 };
 
+void recordError(int httpCode, char *message) {
+    cgiHeaderStatus(httpCode, message);
+    fprintf(stderr, "%s\n", message);
+    fprintf(cgiOut, "Error: %s\n", message);
+    free(message);
+    exit(255);
+}
+
+void checkOpenErrors(FILE *fh, char *file) {
+    if (fh) {
+        return;
+    }
+
+    char *message = malloc(strlen(strerror(errno)) + strlen(file) + 3);
+    sprintf(message, "%s: %s", strerror( errno ), file);
+
+    if (errno == ENOENT) {
+        recordError(404, message);
+    }
+    else if (errno == EACCES) {
+        recordError(403, message);
+    }
+    else {
+        recordError(500, message);
+    }
+}
+
 FILE *openImage(char *imageRoot, char *requestedFile) {
     FILE *fh;
     char *fullImagePath = malloc(strlen(imageRoot) + strlen(requestedFile) + 1);
+
+    if (strstr(requestedFile, "..")) {
+        recordError(403, "Not allowed");
+    }
 
     strncpy(fullImagePath, imageRoot, strlen(imageRoot));
     strncat(fullImagePath, "/", 1);
@@ -30,6 +62,8 @@ FILE *openImage(char *imageRoot, char *requestedFile) {
     fh = fopen(fullImagePath, "rb");
 
     free(fullImagePath);
+
+    checkOpenErrors(fh, requestedFile);
 
     return fh;
 }
