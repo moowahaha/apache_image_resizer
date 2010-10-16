@@ -1,4 +1,3 @@
-require 'open3'
 require 'lib/resize_wrapper'
 
 describe 'image resizer' do
