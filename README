@@ -4,6 +4,8 @@ apache_image_resizer (compiled as image_resize.cgi) is a CGI program
 to be used with the Apache HTTP server to resize images very fast.
 Faster than PHP as it's written in C...
 
+JPEG, PNG and GIF formats are supported.
+
 It will keep the proportions of the image and will pad it with
 a given color.
 
