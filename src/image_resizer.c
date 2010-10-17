@@ -20,12 +20,38 @@ imageType Images[] = {
     {"image/png", "png", gdImageCreateFromPng, gdImagePng}
 };
 
+char *ExpectedEnvironment[] = {"IMAGE_ROOT", "PADDING_COLOR", "MAX_HEIGHT", "MAX_WIDTH", NULL};
+
 void throwError(int httpCode, char *message) {
     cgiHeaderStatus(httpCode, message);
     fprintf(stderr, "%s\n", message);
     fprintf(cgiOut, "Error: %s\n", message);
     free(message);
     exit(255);
+}
+
+void checkEnvironment() {
+    char **env = ExpectedEnvironment;
+    int missingEnvironment = 0;
+    
+    while(*env) {
+        if (!getenv(*env)) {
+            if (!missingEnvironment) {
+                fprintf(stderr, "Missing environment settings:");
+            }
+            
+            fprintf(stderr, " ");
+            fprintf(stderr, *env);
+            missingEnvironment = 1;
+        }
+        env++;
+    }
+
+    if (missingEnvironment) {
+        fprintf(stderr, "\n");
+        cgiHeaderStatus(500, "Not setup right!");
+        exit(255);
+    }
 }
 
 void checkRequestedDimensions(int requestedWidth, int requestedHeight, char *file) {
@@ -74,6 +100,13 @@ void checkOpenErrors(FILE *fh, char *file) {
 }
 
 FILE *openImage(char *imageRoot, char *requestedFile) {
+    if (!strlen(requestedFile)) {
+        char actualMessage[] = "No image defined.";
+        char *message = malloc(strlen(actualMessage) + 1);
+        strcat(message, actualMessage);
+        throwError(400, message);
+    }
+
     FILE *fh;
     char *fullImagePath = malloc(strlen(imageRoot) + strlen(requestedFile) + 1);
 
@@ -189,6 +222,8 @@ void setBackgroundColor(gdImagePtr destination, char *paddingColor) {
 }
 
 int cgiMain() {
+    checkEnvironment();
+
     int requestedWidth = integerFromQuery("width");
     int requestedHeight = integerFromQuery("height");
 

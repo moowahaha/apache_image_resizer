@@ -1,6 +1,17 @@
 require File.join(File.dirname(__FILE__), 'spec_helper')
 
 describe "file access" do
+  it "should 400 when passing an empty path" do
+    lambda {
+      @resizer.resize(
+              :padding_color => 'ffffff',
+              :filename => '',
+              :width => 20,
+              :height => 20
+      )
+    }.should raise_error(/Status: 400 No image defined./)
+  end
+
   it "should 404 when accessing a file that doesn't exist" do
     lambda {
       @resizer.resize(

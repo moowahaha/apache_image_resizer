@@ -12,7 +12,22 @@ class ResizeWrapper
   def resize params
     check_resize_params params
 
-    ResizedImage.new(exec("#{script_params(params)} #{File.join(project_root, 'image_resizer.cgi')}"))
+    ResizedImage.new(exec("#{script_params(params)} #{resizer_path}"))
+  end
+
+  def resizer_path
+    File.join(project_root, 'image_resizer.cgi')
+  end
+
+  def exec command
+    puts command if debug
+
+    output = `#{command} 2>&1`
+    raise output if $? != 0;
+
+    puts output if debug
+
+    output
   end
 
   private
@@ -40,19 +55,9 @@ class ResizeWrapper
   end
 
   def check_resize_params params
-    %w{  width height filename padding_color  }.each do |param|
+    %w{   width height filename padding_color   }.each do |param|
       raise "gimme a #{param}" unless params.has_key?(param.to_sym)
     end
   end
 
-  def exec command
-    puts command if debug
-    
-    output = `#{command} 2>&1`
-    raise output if $? != 0;
-
-    puts output if debug
-
-    output
-  end
 end
