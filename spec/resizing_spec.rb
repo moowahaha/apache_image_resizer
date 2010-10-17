@@ -9,6 +9,7 @@ describe 'resizing' do
             :height => 60
     )
 
+    image.mime_type.should == "image/jpeg"
     image.magick.columns.should == 30
     image.magick.rows.should == 60
   end

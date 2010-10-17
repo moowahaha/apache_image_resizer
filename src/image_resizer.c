@@ -28,6 +28,17 @@ void recordError(int httpCode, char *message) {
     exit(255);
 }
 
+void checkRequestedDimensions(int requestedWidth, int requestedHeight, char *file) {
+    int allowableWidth = atoi(getenv("MAX_WIDTH"));
+    int allowableHeight = atoi(getenv("MAX_HEIGHT"));
+
+    if (requestedWidth > allowableWidth || requestedHeight > allowableHeight) {
+        char *message = malloc(512);
+        sprintf(message, "Requested dimension exceeds maximum allowable size: %s (requested %dx%d)", file, requestedWidth, requestedHeight);
+        recordError(413, message);
+    }
+}
+
 void checkOpenErrors(FILE *fh, char *file) {
     if (fh) {
         return;
@@ -163,13 +174,18 @@ void setBackgroundColor(gdImagePtr destination, char *paddingColor) {
 }
 
 int cgiMain() {
+    int requestedWidth = integerFromQuery("width");
+    int requestedHeight = integerFromQuery("height");
+
+    checkRequestedDimensions(requestedWidth, requestedHeight, cgiPathInfo);
+
     FILE *imageFh = openImage(getenv("IMAGE_ROOT"), cgiPathInfo);
     imageType image = determineImageType(cgiPathInfo);
 
     cgiHeaderContentType(image.mimeType);
 
     gdImagePtr original = (*image.instantiateImage)(imageFh);
-    gdImagePtr destination = gdImageCreateTrueColor(integerFromQuery("width"), integerFromQuery("height"));
+    gdImagePtr destination = gdImageCreateTrueColor(requestedWidth, requestedHeight);
 
     setBackgroundColor(destination, getenv("PADDING_COLOR"));
     resize(original, destination);

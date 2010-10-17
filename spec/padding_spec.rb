@@ -17,7 +17,7 @@ describe "padding" do
   it "should pad the left and right of a square image rendered in landscape" do
     image = @resizer.resize(
             :padding_color => 'ffff00',
-            :filename => 'black_square.jpg',
+            :filename => 'black_square.png',
             :width => 20,
             :height => 10
     )

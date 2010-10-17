@@ -25,7 +25,9 @@ class ResizeWrapper
             ['QUERY_STRING', "width=#{params[:width]}&height=#{params[:height]}"],
             ['IMAGE_ROOT', File.join(File.dirname(__FILE__), '..', 'fixtures')],
             ['PATH_INFO', params[:filename]],
-            ['PADDING_COLOR', params[:padding_color]]
+            ['PADDING_COLOR', params[:padding_color]],
+            ['MAX_WIDTH', (params[:max_width] || 1024)],
+            ['MAX_HEIGHT', (params[:max_height] || 1024)]
     ].each do |key, val|
       script_params += "#{key}='#{val}' "
     end

@@ -37,4 +37,17 @@ describe "file access" do
       )
     }.should raise_error(/Status: 403 Not allowed: \/..\/blah.jpg/)
   end
+
+  it "should 413 when we request too large a dimension of image" do
+    lambda {
+      @resizer.resize(
+              :padding_color => 'ffffff',
+              :filename => 'cat-in-hat.jpg',
+              :width => 200,
+              :height => 300,
+              :max_width => 199,
+              :max_height => 199
+      )
+    }.should raise_error(/Status: 413 Requested dimension exceeds maximum allowable size: cat-in-hat.jpg \(requested 200x300\)/)
+  end
 end
