@@ -20,7 +20,7 @@ imageType Images[] = {
     {"image/png", "png", gdImageCreateFromPng, gdImagePng}
 };
 
-void recordError(int httpCode, char *message) {
+void throwError(int httpCode, char *message) {
     cgiHeaderStatus(httpCode, message);
     fprintf(stderr, "%s\n", message);
     fprintf(cgiOut, "Error: %s\n", message);
@@ -32,10 +32,25 @@ void checkRequestedDimensions(int requestedWidth, int requestedHeight, char *fil
     int allowableWidth = atoi(getenv("MAX_WIDTH"));
     int allowableHeight = atoi(getenv("MAX_HEIGHT"));
 
+    if (!requestedWidth || !requestedHeight) {
+        char *message = malloc(33);
+        strcat(message, "Missing parameters:");
+
+        if (!requestedWidth) {
+            strcat(message, " width");
+        }
+
+        if (!requestedHeight) {
+            strcat(message, " height");
+        }
+        
+        throwError(400, message);
+    }
+
     if (requestedWidth > allowableWidth || requestedHeight > allowableHeight) {
         char *message = malloc(512);
         sprintf(message, "Requested dimension exceeds maximum allowable size: %s (requested %dx%d)", file, requestedWidth, requestedHeight);
-        recordError(413, message);
+        throwError(413, message);
     }
 }
 
@@ -48,13 +63,13 @@ void checkOpenErrors(FILE *fh, char *file) {
     sprintf(message, "%s: %s", strerror( errno ), file);
 
     if (errno == ENOENT) {
-        recordError(404, message);
+        throwError(404, message);
     }
     else if (errno == EACCES) {
-        recordError(403, message);
+        throwError(403, message);
     }
     else {
-        recordError(500, message);
+        throwError(500, message);
     }
 }
 
@@ -65,7 +80,7 @@ FILE *openImage(char *imageRoot, char *requestedFile) {
     if (strstr(requestedFile, "..")) {
         char *message = malloc(24 + strlen(requestedFile));
         sprintf(message, "Not allowed: %s", requestedFile);
-        recordError(403, message);
+        throwError(403, message);
     }
 
     strncpy(fullImagePath, imageRoot, strlen(imageRoot));

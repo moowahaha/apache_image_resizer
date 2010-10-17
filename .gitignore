@@ -1,3 +1,5 @@
 .idea
 image_resizer.cgi*
 test_image.*
+Gemfile.lock
+.bundle
