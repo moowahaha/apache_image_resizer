@@ -1,3 +1,18 @@
+About:
+
+apache_image_resizer (compiled as image_resize.cgi) is a CGI program
+to be used with the Apache HTTP server to resize images very fast.
+Faster than PHP as it's written in C...
+
+It will keep the proportions of the image and will pad it with
+a given color.
+
+When using this, it is also recommended to use some sort of caching
+in front to reduce the number of resize requests. Although
+apache_image_resizer resizes very quickly, using it with caching
+will give you the best results.
+
+
 Pre-requisites:
 
 To compile, you'll need thw following libraries installed:
@@ -5,10 +20,76 @@ To compile, you'll need thw following libraries installed:
     - cgic: http://www.boutell.com/cgic/#obtain
     - libgd: http://www.libgd.org/releases/
 
-To install cgic, download the zip, unzip it and run "sudo make install".
+To install cgic, download the zip, unzip it and run:
 
-To install libgd, download the latest stable zip and run "./configure && sudo make install".
+    $ sudo make install
+
+To install libgd, download the latest stable zip and run"
+
+    $ ./configure && sudo make install
+
 
 Building:
 
 Just type "make". There's no "make install", install it where you please.
+It will compiled as "image_resizer.cgi".
+
+If you want to mess about with the code, feel free to. Please read the
+"Testing" section below first though please!
+
+
+Live Demo:
+
+See a live demo of the resize and padding (in black). Feel free to adjust the
+width and height parameters:
+
+    http://test.whatdoiask.com/image_resizer.cgi/test.jpg?width=600&height=600
+
+
+Apache Config:
+
+The resizer requires 4 settings, which should be set in the site's config file
+using "SetEnv":
+
+    - IMAGE_ROOT - The path from which images will be served. It is this
+      path, along with the path after the script name in the httpd request
+      that make up the full path.
+    - PADDING_COLOR - As the resizer preserves the image ratio, it needs
+      to apply padding. This is the 6 character hex code for the padding
+      color.
+    - MAX_HEIGHT - The maximum height that can be requested by the client
+      (in pixels).
+    - MAX_WIDTH - The maximum width that can be requested by the client (in
+      pixels).
+
+Here is an example config...
+
+<VirtualHost *:80>
+
+    DocumentRoot /xxx/test_whatdoiask
+
+    SetEnv IMAGE_ROOT /xxx/test_whatdoiask/images
+    SetEnv PADDING_COLOR 000000
+    SetEnv MAX_WIDTH 1024
+    SetEnv MAX_HEIGHT 1024
+
+    <Directory /xxx/test_whatdoiask>
+        Options +ExecCGI
+        AddHandler cgi-script .cgi
+    </Directory>
+
+</VirtualHost>
+
+
+Testing:
+
+I've used Ruby's rspec for testing so you'll want to install Ruby and bundler:
+
+    $ gem install bundler
+
+Then you'll need to install the Ruby gems...
+
+    $ bundle install
+
+If you have the Image Magick libraries installed you should just be able to
+run "make test" and voila.
