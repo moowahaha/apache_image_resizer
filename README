@@ -32,7 +32,7 @@ To install libgd, download the latest stable zip and run"
 Building:
 
 Just type "make". There's no "make install", install it where you please.
-It will compiled as "image_resizer.cgi".
+It will compile as "image_resizer.cgi".
 
 If you want to mess about with the code, feel free to. Please read the
 "Testing" section below first though please!
